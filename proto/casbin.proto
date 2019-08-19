@@ -23,7 +23,6 @@ package proto;
 // The Casbin service definition.
 service Casbin {
   rpc NewEnforcer (NewEnforcerRequest) returns (NewEnforcerReply) {}
-  rpc NewAdapter (NewAdapterRequest) returns (NewAdapterReply) {}
 
   rpc Enforce (EnforceRequest) returns (BoolReply) {}
 
@@ -69,21 +68,9 @@ service Casbin {
 
 message NewEnforcerRequest {
   string modelText = 1;
-  int32 adapterHandle = 2;
 }
 
 message NewEnforcerReply {
-  int32 handler = 1;
-}
-
-message NewAdapterRequest {
-  string adapterName = 1;
-  string driverName = 2;
-  string connectString = 3;
-  bool dbSpecified =4;
-}
-
-message NewAdapterReply {
   int32 handler = 1;
 }
 

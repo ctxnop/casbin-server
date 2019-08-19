@@ -29,20 +29,15 @@ type testEngine struct {
 }
 
 func newTestEngine(t *testing.T, from, connectStr string, modelLoc string) *testEngine {
-	s := NewServer()
+	s := NewServer(from, connectStr, false)
 	ctx := context.Background()
-
-	_, err := s.NewAdapter(ctx, &pb.NewAdapterRequest{DriverName: from, ConnectString: connectStr})
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	modelText, err := ioutil.ReadFile(modelLoc)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	resp, err := s.NewEnforcer(ctx, &pb.NewEnforcerRequest{ModelText: string(modelText), AdapterHandle: 0})
+	resp, err := s.NewEnforcer(ctx, &pb.NewEnforcerRequest{ModelText: string(modelText)})
 	if err != nil {
 		t.Fatal(err)
 	}

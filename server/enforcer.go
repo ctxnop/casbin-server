@@ -27,14 +27,19 @@ import (
 // Server is used to implement proto.CasbinServer.
 type Server struct {
 	enforcerMap map[int]*casbin.Enforcer
-	adapterMap  map[int]persist.Adapter
+	adapter     persist.Adapter
 }
 
-func NewServer() *Server {
+// NewServer creates a new instance the server.
+func NewServer(driverName string, connectionString string, dbSpecified bool) *Server {
 	s := Server{}
+	var err error
 
+	s.adapter, err = newAdapter(driverName, connectionString, dbSpecified)
+	if err != nil {
+		panic(err)
+	}
 	s.enforcerMap = map[int]*casbin.Enforcer{}
-	s.adapterMap = map[int]persist.Adapter{}
 
 	return &s
 }
@@ -47,39 +52,16 @@ func (s *Server) getEnforcer(handle int) (*casbin.Enforcer, error) {
 	}
 }
 
-func (s *Server) getAdapter(handle int) (persist.Adapter, error) {
-	if _, ok := s.adapterMap[handle]; ok {
-		return s.adapterMap[handle], nil
-	} else {
-		return nil, errors.New("adapter not found")
-	}
-}
-
 func (s *Server) addEnforcer(e *casbin.Enforcer) int {
 	cnt := len(s.enforcerMap)
 	s.enforcerMap[cnt] = e
 	return cnt
 }
 
-func (s *Server) addAdapter(a persist.Adapter) int {
-	cnt := len(s.adapterMap)
-	s.adapterMap[cnt] = a
-	return cnt
-}
-
 func (s *Server) NewEnforcer(ctx context.Context, in *pb.NewEnforcerRequest) (*pb.NewEnforcerReply, error) {
-	var a persist.Adapter
 	var e *casbin.Enforcer
 
-	if in.AdapterHandle != -1 {
-		var err error
-		a, err = s.getAdapter(int(in.AdapterHandle))
-		if err != nil {
-			return &pb.NewEnforcerReply{Handler: 0}, err
-		}
-	}
-
-	if a == nil {
+	if s.adapter == nil {
 		m, err := model.NewModelFromString(in.ModelText)
 		if err != nil {
 			return &pb.NewEnforcerReply{Handler: 0}, err
@@ -95,7 +77,7 @@ func (s *Server) NewEnforcer(ctx context.Context, in *pb.NewEnforcerRequest) (*p
 			return &pb.NewEnforcerReply{Handler: 0}, err
 		}
 
-		e, err = casbin.NewEnforcer(m, a)
+		e, err = casbin.NewEnforcer(m, s.adapter)
 		if err != nil {
 			return &pb.NewEnforcerReply{Handler: 0}, err
 		}
@@ -103,17 +85,6 @@ func (s *Server) NewEnforcer(ctx context.Context, in *pb.NewEnforcerRequest) (*p
 	h := s.addEnforcer(e)
 
 	return &pb.NewEnforcerReply{Handler: int32(h)}, nil
-}
-
-func (s *Server) NewAdapter(ctx context.Context, in *pb.NewAdapterRequest) (*pb.NewAdapterReply, error) {
-	a, err := newAdapter(in)
-	if err != nil {
-		return nil, err
-	}
-
-	h := s.addAdapter(a)
-
-	return &pb.NewAdapterReply{Handler: int32(h)}, nil
 }
 
 func (s *Server) Enforce(ctx context.Context, in *pb.EnforceRequest) (*pb.BoolReply, error) {
