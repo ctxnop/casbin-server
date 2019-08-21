@@ -67,7 +67,6 @@ service Casbin {
 }
 
 message NewEnforcerRequest {
-  string modelText = 1;
 }
 
 message NewEnforcerReply {

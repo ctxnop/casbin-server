@@ -33,10 +33,12 @@ func main() {
 	var driverName string
 	var connectionString string
 	var dbSpecified bool
+	var modelFile string
 	flag.IntVar(&port, "port", 50051, "listening port")
 	flag.StringVar(&driverName, "driver", "postgres", "adapter's driver (can be 'file', 'mysql', 'postgres' or 'mssql')")
 	flag.StringVar(&connectionString, "connstr", "", "adapter's connection string or file path if driver is 'file'")
 	flag.BoolVar(&dbSpecified, "dbspecified", false, "indicates whether the db is specified or not in the connstr")
+	flag.StringVar(&modelFile, "model", "", "path of the model file")
 	flag.Parse()
 
 	if port < 1 || port > 65535 {
@@ -47,12 +49,16 @@ func main() {
 		panic("a connection string should be provided")
 	}
 
+	if modelFile == "" {
+		panic("a model file has to be specified")
+	}
+
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	pb.RegisterCasbinServer(s, server.NewServer(driverName, connectionString, dbSpecified))
+	pb.RegisterCasbinServer(s, server.NewServer(driverName, connectionString, dbSpecified, modelFile))
 	// Register reflection service on gRPC server.
 	reflection.Register(s)
 	log.Println("Listening on", port)

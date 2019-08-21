@@ -28,10 +28,11 @@ import (
 type Server struct {
 	enforcerMap map[int]*casbin.Enforcer
 	adapter     persist.Adapter
+	modelFile   string
 }
 
 // NewServer creates a new instance the server.
-func NewServer(driverName string, connectionString string, dbSpecified bool) *Server {
+func NewServer(driverName string, connectionString string, dbSpecified bool, modelFile string) *Server {
 	s := Server{}
 	var err error
 
@@ -39,6 +40,7 @@ func NewServer(driverName string, connectionString string, dbSpecified bool) *Se
 	if err != nil {
 		panic(err)
 	}
+	s.modelFile = modelFile
 	s.enforcerMap = map[int]*casbin.Enforcer{}
 
 	return &s
@@ -62,7 +64,7 @@ func (s *Server) NewEnforcer(ctx context.Context, in *pb.NewEnforcerRequest) (*p
 	var e *casbin.Enforcer
 
 	if s.adapter == nil {
-		m, err := model.NewModelFromString(in.ModelText)
+		m, err := model.NewModelFromFile(s.modelFile)
 		if err != nil {
 			return &pb.NewEnforcerReply{Handler: 0}, err
 		}
@@ -72,7 +74,7 @@ func (s *Server) NewEnforcer(ctx context.Context, in *pb.NewEnforcerRequest) (*p
 			return &pb.NewEnforcerReply{Handler: 0}, err
 		}
 	} else {
-		m, err := model.NewModelFromString(in.ModelText)
+		m, err := model.NewModelFromFile(s.modelFile)
 		if err != nil {
 			return &pb.NewEnforcerReply{Handler: 0}, err
 		}

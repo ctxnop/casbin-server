@@ -16,7 +16,6 @@ package server
 
 import (
 	"context"
-	"io/ioutil"
 	"testing"
 
 	pb "github.com/casbin/casbin-server/proto"
@@ -29,15 +28,10 @@ type testEngine struct {
 }
 
 func newTestEngine(t *testing.T, from, connectStr string, modelLoc string) *testEngine {
-	s := NewServer(from, connectStr, false)
+	s := NewServer(from, connectStr, false, modelLoc)
 	ctx := context.Background()
 
-	modelText, err := ioutil.ReadFile(modelLoc)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	resp, err := s.NewEnforcer(ctx, &pb.NewEnforcerRequest{ModelText: string(modelText)})
+	resp, err := s.NewEnforcer(ctx, &pb.NewEnforcerRequest{})
 	if err != nil {
 		t.Fatal(err)
 	}
