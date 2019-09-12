@@ -1,6 +1,6 @@
 FROM grpc/go
-ADD . /go/src/github.com/casbin/casbin-server
-WORKDIR $GOPATH/src/github.com/casbin/casbin-server
+ADD . /go/src/github.com/iotbzh/casbin-server
+WORKDIR $GOPATH/src/github.com/iotbzh/casbin-server
 RUN protoc -I proto --go_out=plugins=grpc:proto proto/casbin.proto
 
 # Download and install the latest release of dep

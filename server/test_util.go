@@ -18,7 +18,7 @@ import (
 	"context"
 	"testing"
 
-	pb "github.com/casbin/casbin-server/proto"
+	pb "github.com/iotbzh/casbin-server/proto"
 )
 
 type testEngine struct {

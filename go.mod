@@ -1,4 +1,4 @@
-module github.com/casbin/casbin-server
+module github.com/iotbzh/casbin-server
 
 go 1.12
 

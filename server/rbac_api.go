@@ -17,7 +17,7 @@ package server
 import (
 	"context"
 
-	pb "github.com/casbin/casbin-server/proto"
+	pb "github.com/iotbzh/casbin-server/proto"
 )
 
 // GetRolesForUser gets the roles that a user has.

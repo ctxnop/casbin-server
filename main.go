@@ -22,8 +22,8 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/casbin/casbin-server/proto"
-	"github.com/casbin/casbin-server/server"
+	pb "github.com/iotbzh/casbin-server/proto"
+	"github.com/iotbzh/casbin-server/server"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
